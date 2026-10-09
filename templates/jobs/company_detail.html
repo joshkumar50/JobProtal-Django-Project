@@ -3,96 +3,117 @@
 {% block title %}{{ company.name }} - JobPortal{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="bg-white shadow overflow-hidden sm:rounded-lg border border-gray-100 mb-8">
-        <div class="px-4 py-6 sm:px-6 flex items-center justify-between">
-            <div class="flex items-center space-x-5">
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-5">
+        <a href="{% url 'job_list' %}" class="inline-flex items-center text-xs font-semibold text-slate-500 hover:text-blue-600 transition-colors">
+            <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Job Directory
+        </a>
+    </div>
+
+    <!-- Company Profile Header Card -->
+    <div class="card mb-8">
+        <div class="p-6 sm:p-8">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-5">
                 {% if company.logo %}
-                    <div class="flex-shrink-0">
-                        <img class="h-16 w-16 rounded-full object-cover border border-gray-200" src="{{ company.logo.url }}" alt="{{ company.name }} logo">
+                    <div class="h-16 w-16 rounded-xl overflow-hidden border border-slate-200 flex-shrink-0 bg-slate-50">
+                        <img class="h-full w-full object-cover" src="{{ company.logo.url }}" alt="{{ company.name }} logo">
                     </div>
                 {% else %}
-                    <div class="flex-shrink-0 h-16 w-16 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xl">
+                    <div class="h-16 w-16 rounded-xl bg-blue-50 text-blue-700 font-extrabold text-2xl flex items-center justify-center flex-shrink-0 border border-blue-100">
                         {{ company.name|make_list|first|upper }}
                     </div>
                 {% endif %}
-                <div>
-                    <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">{{ company.name }}</h2>
-                    <div class="mt-1 flex flex-col sm:flex-row sm:flex-wrap sm:space-x-6 text-sm text-gray-500">
+                
+                <div class="flex-grow">
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">{{ company.name }}</h1>
+                    
+                    <div class="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs sm:text-sm text-slate-500">
                         {% if company.location %}
-                        <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                            <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                              <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                        <div class="flex items-center">
+                            <svg class="w-4 h-4 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                             </svg>
                             {{ company.location }}
                         </div>
                         {% endif %}
+
                         {% if company.website %}
-                        <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                            <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clip-rule="evenodd" />
+                        <div class="flex items-center">
+                            <svg class="w-4 h-4 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                             </svg>
-                            <a href="{{ company.website }}" target="_blank" class="hover:text-indigo-600 hover:underline">{{ company.website }}</a>
+                            <a href="{{ company.website }}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-700 transition-colors font-medium">
+                                {{ company.website }}
+                            </a>
                         </div>
                         {% endif %}
                     </div>
                 </div>
             </div>
+
+            {% if company.description %}
+            <div class="mt-6 pt-6 border-t border-slate-100">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">About Company</h2>
+                <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{{ company.description }}</p>
+            </div>
+            {% endif %}
         </div>
-        
-        {% if company.description %}
-        <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
-            <h3 class="text-lg font-medium text-gray-900 mb-2">About Us</h3>
-            <p class="text-sm text-gray-700 whitespace-pre-line">{{ company.description }}</p>
-        </div>
-        {% endif %}
     </div>
 
+    <!-- Open Positions Section -->
     <div>
-        <h3 class="text-xl font-semibold text-gray-900 mb-4">Open Positions at {{ company.name }}</h3>
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">Open Positions</h2>
+            <span class="badge-blue">{{ company_jobs|length }} role{{ company_jobs|length|pluralize }}</span>
+        </div>
         
-        <div class="bg-white shadow overflow-hidden sm:rounded-md border border-gray-100">
-            <ul class="divide-y divide-gray-200">
+        <div class="card">
+            <ul class="divide-y divide-slate-100">
                 {% for job in company_jobs %}
-                    <li>
-                        <a href="{% url 'job_detail' job.id %}" class="block hover:bg-gray-50 transition-colors">
-                            <div class="px-4 py-4 sm:px-6">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center space-x-3">
-                                        <p class="text-lg font-semibold text-indigo-600 truncate">{{ job.title }}</p>
-                                        <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800">
-                                            {{ job.skills }}
-                                        </p>
+                    <li class="hover:bg-slate-50/60 transition-colors">
+                        <a href="{% url 'job_detail' job.id %}" class="block p-5 sm:p-6 group">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                <div class="min-w-0">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <h3 class="text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                                            {{ job.title }}
+                                        </h3>
+                                        <span class="badge-blue">{{ job.job_type }}</span>
                                     </div>
+                                    
+                                    {% if job.skills %}
+                                        <div class="mt-1.5 flex items-center flex-wrap gap-1">
+                                            <span class="text-xs text-slate-400 mr-1">Skills:</span>
+                                            <span class="text-xs text-slate-600 font-medium">{{ job.skills }}</span>
+                                        </div>
+                                    {% endif %}
                                 </div>
-                                <div class="mt-2 sm:flex sm:justify-between">
-                                    <div class="sm:flex text-sm text-gray-500 space-x-4">
-                                        <p class="flex items-center">
-                                            <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                              <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
-                                            </svg>
-                                            {{ job.location }}
-                                        </p>
+
+                                <div class="flex items-center gap-4 text-xs text-slate-500 sm:text-right flex-shrink-0">
+                                    <div>
+                                        <p class="font-medium text-slate-700">{{ job.location }}</p>
                                         {% if job.formatted_salary %}
-                                        <p class="flex items-center">
-                                            <span class="mr-1.5 h-5 w-5 text-gray-400 text-lg flex items-center justify-center font-bold">₹</span>
-                                            {{ job.formatted_salary }}
-                                        </p>
+                                            <p class="text-slate-500 font-semibold mt-0.5">₹ {{ job.formatted_salary }}</p>
                                         {% endif %}
                                     </div>
-                                    <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                                        <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
-                                        </svg>
-                                        <p>Posted <time datetime="{{ job.posted_on|date:'Y-m-d' }}">{{ job.posted_on|timesince }} ago</time></p>
-                                    </div>
+                                    <span class="text-slate-400 hidden sm:inline">&bull;</span>
+                                    <p class="text-slate-400 whitespace-nowrap">{{ job.posted_on|timesince }} ago</p>
                                 </div>
                             </div>
                         </a>
                     </li>
                 {% empty %}
-                    <li class="px-4 py-12 text-center text-gray-500">
-                        No active jobs at the moment.
+                    <li class="p-12 text-center text-slate-500">
+                        <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <p class="text-sm font-semibold text-slate-800">No open roles currently listed</p>
+                        <p class="text-xs text-slate-500 mt-1">Check back later for new opportunities from {{ company.name }}.</p>
                     </li>
                 {% endfor %}
             </ul>

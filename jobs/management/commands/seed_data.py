@@ -7,7 +7,14 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 class Command(BaseCommand):
     help = 'Seeds the database with realistic sample recruiters, candidates, companies, jobs, applications, and saved jobs.'
 
-    def handle(self, *args, **kwargs):
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--recruiter',
+            type=str,
+            help='Assign seeded demo jobs to an existing recruiter username after seeding.',
+        )
+
+    def handle(self, *args, **options):
         self.stdout.write("Seeding realistic data...")
 
         # Clear existing data to prevent duplicates on multiple runs (optional but good for seed)
@@ -113,3 +120,9 @@ class Command(BaseCommand):
         SavedJob.objects.get_or_create(user=candidates[2], job=jobs[2])
 
         self.stdout.write(self.style.SUCCESS("Successfully seeded realistic data!"))
+
+        recruiter_username = options.get('recruiter')
+        if recruiter_username:
+            from django.core.management import call_command
+            self.stdout.write(f"Assigning demo jobs to {recruiter_username}...")
+            call_command('assign_demo_jobs', recruiter_username)

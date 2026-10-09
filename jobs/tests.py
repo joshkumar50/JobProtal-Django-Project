@@ -345,3 +345,171 @@ class JobSearchTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Data Scientist')
         self.assertNotContains(response, 'Frontend Developer')
+
+from io import StringIO
+from django.core.management import call_command, CommandError
+
+class AssignDemoJobsCommandTestCase(TestCase):
+    def setUp(self):
+        # Create sample demo recruiters
+        self.sarah = User.objects.create_user(username='sarah_hr', password='password123', email='sarah@techcorp.com')
+        self.sarah.profile.role = 'RECRUITER'
+        self.sarah.profile.save()
+        self.sarah_comp = Company.objects.create(owner=self.sarah, name='TechCorp Solutions')
+
+        self.michael = User.objects.create_user(username='michael_rec', password='password123', email='michael@innovatellc.com')
+        self.michael.profile.role = 'RECRUITER'
+        self.michael.profile.save()
+
+        # Create candidates
+        self.cand1 = User.objects.create_user(username='cand1', password='password123', email='c1@example.com')
+        self.cand1.profile.role = 'CANDIDATE'
+        self.cand1.profile.save()
+
+        # Create demo jobs
+        self.job1 = Job.objects.create(recruiter=self.sarah, title='Job 1', company_name='TCS', location='Bangalore')
+        self.job2 = Job.objects.create(recruiter=self.sarah, title='Job 2', company_name='Infosys', location='Pune')
+        self.job3 = Job.objects.create(recruiter=self.michael, title='Job 3', company_name='Wipro', location='Chennai')
+
+        # Create applications
+        resume = SimpleUploadedFile("resume.pdf", b"test content", content_type="application/pdf")
+        self.app1 = Application.objects.create(job=self.job1, candidate=self.cand1, resume=resume, status='APPLIED')
+
+        # Create new target recruiter
+        self.new_recruiter = User.objects.create_user(username='new_recruiter', password='password123', email='new@recruiter.com')
+        self.new_recruiter.profile.role = 'RECRUITER'
+        self.new_recruiter.profile.save()
+
+    def test_assign_demo_jobs_success(self):
+        out = StringIO()
+        call_command('assign_demo_jobs', 'new_recruiter', stdout=out)
+        output = out.getvalue()
+        self.assertIn('SUCCESSFULLY TRANSFERRED DEMO JOBS', output)
+        self.job1.refresh_from_db()
+        self.job2.refresh_from_db()
+        self.job3.refresh_from_db()
+        self.assertEqual(self.job1.recruiter, self.new_recruiter)
+        self.assertEqual(self.job2.recruiter, self.new_recruiter)
+        self.assertEqual(self.job3.recruiter, self.new_recruiter)
+
+        # Confirm applications preserved
+        self.assertEqual(self.job1.applications.count(), 1)
+        self.app1.refresh_from_db()
+        self.assertEqual(self.app1.candidate, self.cand1)
+        self.assertEqual(self.app1.status, 'APPLIED')
+
+        # Confirm company synced
+        self.assertTrue(hasattr(self.new_recruiter, 'company'))
+        self.assertEqual(self.new_recruiter.company.name, 'TechCorp Solutions')
+
+    def test_assign_demo_jobs_dry_run(self):
+        out = StringIO()
+        call_command('assign_demo_jobs', 'new_recruiter', '--dry-run', stdout=out)
+        self.assertIn('DRY RUN MODE', out.getvalue())
+        self.job1.refresh_from_db()
+        self.assertEqual(self.job1.recruiter, self.sarah)
+
+    def test_assign_demo_jobs_invalid_user(self):
+        with self.assertRaises(CommandError) as ctx:
+            call_command('assign_demo_jobs', 'nonexistent_user')
+        self.assertIn("does not exist", str(ctx.exception))
+
+    def test_assign_demo_jobs_reject_candidate(self):
+        with self.assertRaises(CommandError) as ctx:
+            call_command('assign_demo_jobs', 'cand1')
+        self.assertIn("CANDIDATE", str(ctx.exception))
+
+    def test_assign_demo_jobs_filter_by_source(self):
+        out = StringIO()
+        call_command('assign_demo_jobs', 'new_recruiter', '--from', 'michael_rec', stdout=out)
+        self.job1.refresh_from_db()
+        self.job3.refresh_from_db()
+        self.assertEqual(self.job1.recruiter, self.sarah)
+        self.assertEqual(self.job3.recruiter, self.new_recruiter)
+
+    def test_assign_demo_jobs_specific_ids(self):
+        out = StringIO()
+        call_command('assign_demo_jobs', 'new_recruiter', '--job-ids', self.job1.id, stdout=out)
+        self.job1.refresh_from_db()
+        self.job2.refresh_from_db()
+        self.assertEqual(self.job1.recruiter, self.new_recruiter)
+        self.assertEqual(self.job2.recruiter, self.sarah)
+
+
+class RecruiterJobManagementRBACSecurityTestCase(TestCase):
+    def setUp(self):
+        self.recruiter1 = User.objects.create_user(username='recruiter1', password='password123', email='r1@test.com')
+        self.recruiter1.profile.role = 'RECRUITER'
+        self.recruiter1.profile.save()
+
+        self.recruiter2 = User.objects.create_user(username='recruiter2', password='password123', email='r2@test.com')
+        self.recruiter2.profile.role = 'RECRUITER'
+        self.recruiter2.profile.save()
+
+        self.candidate = User.objects.create_user(username='candidate', password='password123', email='c@test.com')
+        self.candidate.profile.role = 'CANDIDATE'
+        self.candidate.profile.save()
+
+        self.job1 = Job.objects.create(recruiter=self.recruiter1, title='Job of Recruiter 1', location='Remote')
+        resume = SimpleUploadedFile("resume.pdf", b"pdf content", content_type="application/pdf")
+        self.app1 = Application.objects.create(job=self.job1, candidate=self.candidate, resume=resume, status='APPLIED')
+
+    def test_recruiter1_can_manage_own_job(self):
+        self.client.login(username='recruiter1', password='password123')
+        
+        # Dashboard shows job
+        res = self.client.get('/accounts/recruiter/dashboard/')
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, 'Job of Recruiter 1')
+
+        # Can access edit view
+        res = self.client.get(f'/jobs/{self.job1.id}/update/')
+        self.assertEqual(res.status_code, 200)
+
+        # Can access applicants view
+        res = self.client.get(f'/jobs/{self.job1.id}/applicants/')
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, 'candidate')
+
+        # Can change applicant status
+        res = self.client.post(f'/jobs/application/{self.app1.id}/status/SHORTLISTED/')
+        self.assertRedirects(res, f'/jobs/{self.job1.id}/applicants/', fetch_redirect_response=False)
+        self.app1.refresh_from_db()
+        self.assertEqual(self.app1.status, 'SHORTLISTED')
+
+        # Can toggle job active
+        res = self.client.post(f'/jobs/{self.job1.id}/toggle/')
+        self.assertRedirects(res, '/accounts/dashboard/', fetch_redirect_response=False)
+        self.job1.refresh_from_db()
+        self.assertFalse(self.job1.is_active)
+
+    def test_recruiter2_cannot_access_recruiter1_job(self):
+        self.client.login(username='recruiter2', password='password123')
+
+        # Dashboard does NOT show recruiter1's job
+        res = self.client.get('/accounts/recruiter/dashboard/')
+        self.assertEqual(res.status_code, 200)
+        self.assertNotContains(res, 'Job of Recruiter 1')
+
+        # Edit unauthorized job -> 404
+        res = self.client.get(f'/jobs/{self.job1.id}/update/')
+        self.assertEqual(res.status_code, 404)
+
+        # Delete unauthorized job -> 404
+        res = self.client.post(f'/jobs/{self.job1.id}/delete/')
+        self.assertEqual(res.status_code, 404)
+
+        # Toggle unauthorized job -> 404
+        res = self.client.post(f'/jobs/{self.job1.id}/toggle/')
+        self.assertEqual(res.status_code, 404)
+
+        # View applicants of unauthorized job -> 404
+        res = self.client.get(f'/jobs/{self.job1.id}/applicants/')
+        self.assertEqual(res.status_code, 404)
+
+        # Change applicant status of unauthorized job -> 404
+        res = self.client.post(f'/jobs/application/{self.app1.id}/status/SHORTLISTED/')
+        self.assertEqual(res.status_code, 404)
+        self.app1.refresh_from_db()
+        self.assertEqual(self.app1.status, 'APPLIED')  # Unchanged
+

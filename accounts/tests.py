@@ -33,8 +33,13 @@ class AccountsTestCase(TestCase):
         self.assertTrue(User.objects.filter(username='newcandidate').exists())
 
     def test_login_logout(self):
-        # Test Login
+        # Test Login with username
         response = self.client.post('/accounts/login/', data={'username': 'candidate1', 'password': 'password123'})
+        self.assertRedirects(response, '/accounts/dashboard/', fetch_redirect_response=False)
+
+        # Test Login with email
+        self.client.logout()
+        response = self.client.post('/accounts/login/', data={'username': 'c@example.com', 'password': 'password123'})
         self.assertRedirects(response, '/accounts/dashboard/', fetch_redirect_response=False)
         
         # Test Logout

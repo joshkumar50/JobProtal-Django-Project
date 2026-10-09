@@ -43,8 +43,8 @@ class ProfileUpdateForm(forms.ModelForm):
         widgets = {
             'phone': forms.TextInput(attrs={'class': 'input-field'}),
             'bio': forms.Textarea(attrs={'class': 'input-field', 'rows': 4}),
-            'avatar': forms.FileInput(attrs={'class': 'mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100'}),
-            'resume': forms.FileInput(attrs={'class': 'mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100'}),
+            'avatar': forms.FileInput(attrs={'class': 'mt-1 block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer'}),
+            'resume': forms.FileInput(attrs={'class': 'mt-1 block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer'}),
             'company_name': forms.TextInput(attrs={'class': 'input-field'}),
             'company_website': forms.URLInput(attrs={'class': 'input-field'}),
             'company_location': forms.TextInput(attrs={'class': 'input-field'}),

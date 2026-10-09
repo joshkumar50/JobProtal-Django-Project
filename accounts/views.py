@@ -21,7 +21,7 @@ class RegisterView(CreateView):
         user.profile.role = form.cleaned_data['role']
         user.profile.save()
         
-        login(self.request, user)
+        login(self.request, user, backend='accounts.backends.EmailOrUsernameModelBackend')
         messages.success(self.request, f"Welcome {user.username}! Your account has been created.")
         return redirect(self.success_url)
 
@@ -35,8 +35,12 @@ def dashboard(request):
 
 @recruiter_required
 def recruiter_dashboard(request):
-    jobs = Job.objects.filter(recruiter=request.user)
-    applications = Application.objects.filter(job__in=jobs).order_by('-applied_at')
+    jobs = Job.objects.filter(recruiter=request.user).prefetch_related('applications')
+    applications = (
+        Application.objects.filter(job__in=jobs)
+        .select_related('job', 'candidate', 'candidate__profile')
+        .order_by('-applied_at')
+    )
     
     total_jobs = jobs.count()
     active_jobs = jobs.filter(is_active=True).count()

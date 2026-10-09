@@ -3,42 +3,83 @@
 {% block title %}Update Profile - JobPortal{% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-    <div class="card p-6 sm:p-8">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">Update Your Profile</h2>
-        
-        <form method="POST" enctype="multipart/form-data" class="space-y-6">
-            {% csrf_token %}
-            
-            <div class="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-8">
-                <!-- User Form Fields -->
-                {% for field in u_form %}
-                    <div class="sm:col-span-2">
-                        <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
-                        {{ field }}
-                        {% if field.errors %}
-                            <p class="mt-1 text-sm text-red-600">{{ field.errors.0 }}</p>
-                        {% endif %}
-                    </div>
-                {% endfor %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Back to Dashboard -->
+    <div class="mb-5">
+        <a href="{% url 'dashboard' %}" class="inline-flex items-center text-xs font-semibold text-slate-500 hover:text-blue-600 transition-colors">
+            <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Dashboard
+        </a>
+    </div>
 
-                <!-- Profile Form Fields -->
-                {% for field in p_form %}
-                    <div class="sm:col-span-2">
-                        <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
-                        {{ field }}
-                        {% if field.errors %}
-                            <p class="mt-1 text-sm text-red-600">{{ field.errors.0 }}</p>
-                        {% endif %}
-                    </div>
-                {% endfor %}
+    <div class="card">
+        <div class="card-header bg-slate-50/50">
+            <div>
+                <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">Edit Profile</h1>
+                <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Keep your personal contact information and credentials up to date.</p>
             </div>
+            <span class="badge-blue font-semibold uppercase text-xs">{{ user.profile.role }}</span>
+        </div>
 
-            <div class="flex justify-end pt-4 border-t border-gray-100 space-x-3">
-                <a href="{% url 'dashboard' %}" class="btn-secondary">Cancel</a>
-                <button type="submit" class="btn-primary">Save Changes</button>
-            </div>
-        </form>
+        <div class="card-body">
+            {% if u_form.non_field_errors or p_form.non_field_errors %}
+                <div class="p-3.5 mb-6 bg-rose-50 border border-rose-200 rounded-md text-xs sm:text-sm text-rose-800 font-medium">
+                    {{ u_form.non_field_errors }}
+                    {{ p_form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <form method="POST" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
+
+                <!-- Account Credentials Section -->
+                <div>
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 pb-2 border-b border-slate-100">
+                        Account Information
+                    </h2>
+                    <div class="grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-4">
+                        {% for field in u_form %}
+                            <div class="{% if field.name == 'email' %}sm:col-span-2{% endif %}">
+                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <p class="form-error">{{ field.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Profile Attributes Section -->
+                <div class="pt-4">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 pb-2 border-b border-slate-100">
+                        Profile &amp; Contact Details
+                    </h2>
+                    <div class="grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-4">
+                        {% for field in p_form %}
+                            <div class="{% if field.name == 'bio' or field.name == 'company_description' or field.name == 'avatar' or field.name == 'resume' %}sm:col-span-2{% endif %}">
+                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <p class="form-hint">{{ field.help_text }}</p>
+                                {% endif %}
+                                {% if field.errors %}
+                                    <p class="form-error">{{ field.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Form Action Buttons -->
+                <div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-100">
+                    <a href="{% url 'dashboard' %}" class="btn-outline">Cancel</a>
+                    <button type="submit" class="btn-primary">Save Profile Changes</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}

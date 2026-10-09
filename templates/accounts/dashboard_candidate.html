@@ -3,67 +3,199 @@
 {% block title %}Candidate Dashboard - JobPortal{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="md:flex md:items-center md:justify-between mb-8">
-        <div class="flex-1 min-w-0">
-            <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">Candidate Dashboard</h2>
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-10">
+    <!-- Top Greeting & Header Actions -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+                Candidate Dashboard
+            </h1>
+            <p class="mt-1 text-xs sm:text-sm text-slate-500">
+                Welcome back, <span class="font-semibold text-slate-700">{{ user.get_full_name|default:user.username }}</span>. Track your job applications and saved roles.
+            </p>
         </div>
-        <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
-            <a href="{% url 'saved_jobs' %}" class="btn-secondary">
-                <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
-                Saved Jobs
+        <div class="flex flex-wrap items-center gap-2.5">
+            <a href="{% url 'saved_jobs' %}" class="btn-outline">
+                <svg class="w-4 h-4 mr-1.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                </svg>
+                Saved Jobs ({{ user.saved_jobs.count }})
             </a>
-            <a href="{% url 'profile_update' %}" class="btn-secondary">
+            <a href="{% url 'profile_update' %}" class="btn-outline">
+                <svg class="w-4 h-4 mr-1.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
                 Edit Profile
             </a>
             <a href="{% url 'job_list' %}" class="btn-primary">
-                Browse Jobs
+                Browse Open Jobs
             </a>
         </div>
     </div>
 
-    <div class="card">
-        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
-            <h3 class="text-lg leading-6 font-medium text-gray-900">Your Applications</h3>
+    <!-- Candidate Profile Snapshot Card -->
+    <div class="card p-5 sm:p-6 mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-4 min-w-0">
+                {% if user.profile.avatar %}
+                    <img class="h-14 w-14 rounded-full object-cover border border-slate-200 flex-shrink-0" src="{{ user.profile.avatar.url }}" alt="{{ user.username }}">
+                {% else %}
+                    <div class="h-14 w-14 rounded-full bg-slate-800 text-white font-extrabold text-lg flex items-center justify-center flex-shrink-0">
+                        {{ user.username|make_list|first|upper }}
+                    </div>
+                {% endif %}
+
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h2 class="text-base sm:text-lg font-bold text-slate-900 truncate">
+                            {{ user.get_full_name|default:user.username }}
+                        </h2>
+                        <span class="badge-blue font-semibold">Candidate</span>
+                    </div>
+                    
+                    <div class="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+                        <span class="flex items-center">
+                            <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            {{ user.email }}
+                        </span>
+                        {% if user.profile.phone %}
+                            <span class="flex items-center">
+                                <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                </svg>
+                                {{ user.profile.phone }}
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resume Link / Upload Prompt -->
+            <div class="flex items-center gap-2 self-start sm:self-auto flex-shrink-0">
+                {% if user.profile.resume %}
+                    <a href="{{ user.profile.resume.url }}" target="_blank" class="btn-outline btn-sm">
+                        <svg class="w-3.5 h-3.5 mr-1 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Profile Resume
+                    </a>
+                {% else %}
+                    <a href="{% url 'profile_update' %}" class="inline-flex items-center text-xs font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 border border-blue-200/80 px-2.5 py-1.5 rounded-md transition-colors">
+                        Upload Profile Resume &rarr;
+                    </a>
+                {% endif %}
+            </div>
         </div>
-        <ul class="divide-y divide-gray-200">
+
+        {% if user.profile.bio %}
+            <div class="mt-4 pt-4 border-t border-slate-100 text-xs text-slate-600 leading-relaxed">
+                <span class="font-semibold text-slate-800">Bio:</span> {{ user.profile.bio }}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Candidate Metric Summary Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+        <div class="card p-5">
+            <dt class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Applications Submitted</dt>
+            <dd class="mt-2 text-2xl sm:text-3xl font-bold text-slate-900">{{ applications|length }}</dd>
+        </div>
+        <div class="card p-5">
+            <dt class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Bookmarked Opportunities</dt>
+            <dd class="mt-2 text-2xl sm:text-3xl font-bold text-blue-600">{{ user.saved_jobs.count }}</dd>
+        </div>
+        <div class="card p-5">
+            <dt class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Profile Status</dt>
+            <dd class="mt-2 text-sm font-semibold text-emerald-700 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                Active Candidate
+            </dd>
+        </div>
+    </div>
+
+    <!-- Applications Roster Card -->
+    <div class="card">
+        <div class="card-header bg-slate-50/50">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-700">Your Applications</h2>
+            <span class="text-xs text-slate-500">{{ applications|length }} role{{ applications|length|pluralize }}</span>
+        </div>
+
+        <ul class="divide-y divide-slate-100">
             {% for app in applications %}
-                <li>
-                    <a href="{% url 'job_detail' app.job.id %}" class="block hover:bg-gray-50 transition-colors">
-                        <div class="px-4 py-4 sm:px-6">
-                            <div class="flex items-center justify-between">
-                                <p class="text-sm font-medium text-indigo-600 truncate">{{ app.job.title }}</p>
-                                <div class="ml-2 flex-shrink-0 flex">
-                                    <p class="badge 
-                                        {% if app.status == 'ACCEPTED' %}bg-green-100 text-green-800
-                                        {% elif app.status == 'REJECTED' %}bg-red-100 text-red-800
-                                        {% elif app.status == 'REVIEWING' %}bg-blue-100 text-blue-800
-                                        {% else %}bg-yellow-100 text-yellow-800{% endif %}">
-                                        {{ app.get_status_display }}
-                                    </p>
-                                </div>
+                <li class="p-5 sm:p-6 hover:bg-slate-50/70 transition-colors">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <!-- Role Info -->
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap mb-1">
+                                <h3 class="text-base font-bold text-slate-900">
+                                    <a href="{% url 'job_detail' app.job.id %}" class="hover:text-blue-600 transition-colors">
+                                        {{ app.job.title }}
+                                    </a>
+                                </h3>
+                                <span class="badge-blue">{{ app.job.job_type }}</span>
                             </div>
-                            <div class="mt-2 sm:flex sm:justify-between">
-                                <div class="sm:flex text-sm text-gray-500">
-                                    <p class="flex items-center">
-                                        {% if app.job.company_name %}
-                                            {{ app.job.company_name }}
-                                        {% else %}
-                                            {{ app.job.recruiter.company.name|default:app.job.recruiter.username }}
-                                        {% endif %}
-                                    </p>
-                                </div>
-                                <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                                    <p>Applied on <time datetime="{{ app.applied_at|date:'Y-m-d' }}">{{ app.applied_at|date:"M d, Y" }}</time></p>
-                                </div>
+
+                            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+                                <span class="font-medium text-slate-700">
+                                    {% if app.job.company_name %}
+                                        {{ app.job.company_name }}
+                                    {% elif app.job.recruiter.company %}
+                                        {{ app.job.recruiter.company.name }}
+                                    {% else %}
+                                        {{ app.job.recruiter.username }}
+                                    {% endif %}
+                                </span>
+                                <span>&bull;</span>
+                                <span>{{ app.job.location }}</span>
+                                <span>&bull;</span>
+                                <span>Applied on {{ app.applied_at|date:"M d, Y" }}</span>
                             </div>
                         </div>
-                    </a>
+
+                        <!-- Status & Action Controls -->
+                        <div class="flex items-center gap-3 self-start sm:self-auto flex-shrink-0">
+                            <!-- Status Badge -->
+                            <div>
+                                {% if app.status == 'SHORTLISTED' %}
+                                    <span class="badge-success">Shortlisted</span>
+                                {% elif app.status == 'REJECTED' %}
+                                    <span class="badge-danger">Not Selected</span>
+                                {% else %}
+                                    <span class="badge-blue">Applied</span>
+                                {% endif %}
+                            </div>
+
+                            <!-- Resume Submitted -->
+                            {% if app.resume %}
+                                <a href="{{ app.resume.url }}" target="_blank" class="btn-outline btn-sm">
+                                    <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    Resume
+                                </a>
+                            {% endif %}
+
+                            <!-- Details Link -->
+                            <a href="{% url 'job_detail' app.job.id %}" class="inline-flex items-center text-xs font-semibold text-blue-600 hover:text-blue-700 ml-1">
+                                View Role &rarr;
+                            </a>
+                        </div>
+                    </div>
                 </li>
             {% empty %}
-                <li class="px-4 py-8 text-center text-gray-500">
-                    <p class="mb-4">You haven't applied to any jobs yet.</p>
-                    <a href="{% url 'job_list' %}" class="text-indigo-600 hover:text-indigo-500 font-medium">Browse Jobs</a>
+                <li class="p-12 text-center text-slate-500">
+                    <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-sm font-semibold text-slate-800">No applications submitted yet</h3>
+                    <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">Explore open positions across technology and apply with your PDF resume.</p>
+                    <div class="mt-4">
+                        <a href="{% url 'job_list' %}" class="btn-primary btn-sm">Explore Open Positions</a>
+                    </div>
                 </li>
             {% endfor %}
         </ul>

@@ -3,60 +3,92 @@
 {% block title %}Edit Company - JobPortal{% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-    <div class="card p-6 sm:p-8">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">Company Profile</h2>
-        
-        <form method="POST" enctype="multipart/form-data" class="space-y-6">
-            {% csrf_token %}
-            
-            <div class="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-8">
-                <div class="sm:col-span-2">
-                    <label for="id_name" class="block text-sm font-medium text-gray-700">Company Name</label>
-                    <div class="mt-1">
-                        <input type="text" name="name" id="id_name" value="{{ form.name.value|default:'' }}" required class="input-field">
-                    </div>
-                </div>
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-5">
+        <a href="{% url 'dashboard' %}" class="inline-flex items-center text-xs font-semibold text-slate-500 hover:text-blue-600 transition-colors">
+            <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Dashboard
+        </a>
+    </div>
 
-                <div class="sm:col-span-2">
-                    <label for="id_description" class="block text-sm font-medium text-gray-700">Description</label>
-                    <div class="mt-1">
-                        <textarea name="description" id="id_description" rows="5" class="input-field">{{ form.description.value|default:'' }}</textarea>
-                    </div>
-                </div>
+    <div class="card">
+        <div class="card-header bg-slate-50/50">
+            <div>
+                <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Company Profile</h1>
+                <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Manage your organization's brand presence and information.</p>
+            </div>
+        </div>
 
-                <div>
-                    <label for="id_location" class="block text-sm font-medium text-gray-700">Location</label>
-                    <div class="mt-1">
-                        <input type="text" name="location" id="id_location" value="{{ form.location.value|default:'' }}" class="input-field">
-                    </div>
+        <div class="card-body">
+            {% if form.non_field_errors %}
+                <div class="p-3.5 mb-6 bg-rose-50 border border-rose-200 rounded-md text-xs sm:text-sm text-rose-800 font-medium">
+                    {{ form.non_field_errors }}
                 </div>
+            {% endif %}
+
+            <form method="POST" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
                 
-                <div>
-                    <label for="id_website" class="block text-sm font-medium text-gray-700">Website</label>
-                    <div class="mt-1">
-                        <input type="url" name="website" id="id_website" value="{{ form.website.value|default:'' }}" class="input-field">
-                    </div>
-                </div>
-
-                <div class="sm:col-span-2">
-                    <label for="id_logo" class="block text-sm font-medium text-gray-700">Logo</label>
-                    <div class="mt-1 flex items-center">
-                        {% if form.instance.logo %}
-                            <span class="inline-block h-12 w-12 rounded-full overflow-hidden bg-gray-100 mr-3">
-                                <img src="{{ form.instance.logo.url }}" alt="Logo" class="h-full w-full object-cover">
-                            </span>
+                <div class="grid grid-cols-1 gap-y-5 sm:grid-cols-2 sm:gap-x-6">
+                    <div class="sm:col-span-2">
+                        <label for="id_name" class="form-label">Company Name <span class="text-rose-500">*</span></label>
+                        <input type="text" name="name" id="id_name" value="{{ form.name.value|default:'' }}" required placeholder="e.g. Acme Corporation" class="input-field">
+                        {% if form.name.errors %}
+                            <p class="form-error">{{ form.name.errors.0 }}</p>
                         {% endif %}
-                        <input type="file" name="logo" id="id_logo" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label for="id_description" class="form-label">Company Overview</label>
+                        <textarea name="description" id="id_description" rows="5" placeholder="Share what your company does, your mission, and culture..." class="input-field">{{ form.description.value|default:'' }}</textarea>
+                        {% if form.description.errors %}
+                            <p class="form-error">{{ form.description.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="id_location" class="form-label">Headquarters / Location</label>
+                        <input type="text" name="location" id="id_location" value="{{ form.location.value|default:'' }}" placeholder="e.g. Bangalore, India" class="input-field">
+                        {% if form.location.errors %}
+                            <p class="form-error">{{ form.location.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="id_website" class="form-label">Official Website</label>
+                        <input type="url" name="website" id="id_website" value="{{ form.website.value|default:'' }}" placeholder="https://example.com" class="input-field">
+                        {% if form.website.errors %}
+                            <p class="form-error">{{ form.website.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label for="id_logo" class="form-label">Company Logo</label>
+                        <div class="mt-2 flex items-center gap-4">
+                            {% if form.instance.logo %}
+                                <div class="h-14 w-14 rounded-lg overflow-hidden bg-slate-100 border border-slate-200 flex-shrink-0">
+                                    <img src="{{ form.instance.logo.url }}" alt="Company Logo" class="h-full w-full object-cover">
+                                </div>
+                            {% endif %}
+                            <div class="flex-grow">
+                                <input type="file" name="logo" id="id_logo" class="block w-full text-xs sm:text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+                                <p class="form-hint">Recommended format: Square PNG or JPG, max 2MB.</p>
+                            </div>
+                        </div>
+                        {% if form.logo.errors %}
+                            <p class="form-error">{{ form.logo.errors.0 }}</p>
+                        {% endif %}
                     </div>
                 </div>
-            </div>
 
-            <div class="flex justify-end pt-4 border-t border-gray-100 space-x-3">
-                <a href="{% url 'dashboard' %}" class="btn-secondary">Cancel</a>
-                <button type="submit" class="btn-primary">Save Changes</button>
-            </div>
-        </form>
+                <div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-100">
+                    <a href="{% url 'dashboard' %}" class="btn-outline">Cancel</a>
+                    <button type="submit" class="btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}

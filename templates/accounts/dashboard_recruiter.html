@@ -3,137 +3,302 @@
 {% block title %}Recruiter Dashboard - JobPortal{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="md:flex md:items-center md:justify-between mb-8">
-        <div class="flex-1 min-w-0">
-            <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">Recruiter Dashboard</h2>
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-10">
+    <!-- Top Header & Primary Action Bar -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+                Recruiter Dashboard
+            </h1>
+            <p class="mt-1 text-xs sm:text-sm text-slate-500">
+                Manage job openings, review candidate applications, and maintain your company presence.
+            </p>
         </div>
-        <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
-            <a href="{% url 'company_update' %}" class="btn-secondary">Edit Company</a>
-            <a href="{% url 'profile_update' %}" class="btn-secondary">Edit Profile</a>
-            <a href="{% url 'job_create' %}" class="btn-primary">Post New Job</a>
+        <div class="flex flex-wrap items-center gap-2.5">
+            <a href="{% url 'company_update' %}" class="btn-outline">
+                <svg class="w-4 h-4 mr-1.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+                Company Profile
+            </a>
+            <a href="{% url 'profile_update' %}" class="btn-outline">
+                <svg class="w-4 h-4 mr-1.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+                Edit Profile
+            </a>
+            <a href="{% url 'job_create' %}" class="btn-primary">
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Post New Job
+            </a>
         </div>
     </div>
 
-    <!-- Stats -->
-    <div class="grid grid-cols-1 gap-5 sm:grid-cols-3 mb-8">
-        <div class="card">
-            <div class="px-4 py-5 sm:p-6">
-                <dt class="text-sm font-medium text-gray-500 truncate">Total Jobs Posted</dt>
-                <dd class="mt-1 text-3xl font-semibold text-gray-900">{{ total_jobs }}</dd>
+    <!-- Company Profile Snapshot Card -->
+    {% if user.company %}
+        <div class="card p-5 sm:p-6 mb-8">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-center gap-4 min-w-0">
+                    {% if user.company.logo %}
+                        <div class="h-14 w-14 rounded-xl overflow-hidden border border-slate-200 flex-shrink-0 bg-slate-50">
+                            <img class="h-full w-full object-cover" src="{{ user.company.logo.url }}" alt="{{ user.company.name }}">
+                        </div>
+                    {% else %}
+                        <div class="h-14 w-14 rounded-xl bg-blue-50 text-blue-700 font-extrabold text-xl flex items-center justify-center flex-shrink-0 border border-blue-100">
+                            {{ user.company.name|make_list|first|upper }}
+                        </div>
+                    {% endif %}
+
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h2 class="text-base sm:text-lg font-bold text-slate-900 truncate">
+                                {{ user.company.name }}
+                            </h2>
+                            <span class="badge-blue font-semibold">Verified Organization</span>
+                        </div>
+                        
+                        <div class="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+                            {% if user.company.location %}
+                                <span class="flex items-center">
+                                    <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    </svg>
+                                    {{ user.company.location }}
+                                </span>
+                            {% endif %}
+                            {% if user.company.website %}
+                                <a href="{{ user.company.website }}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-700 flex items-center">
+                                    {{ user.company.website }}
+                                    <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                    </svg>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 self-start sm:self-auto flex-shrink-0">
+                    <a href="{% url 'company_detail' user.company.id %}" class="btn-outline btn-sm">
+                        View Public Page &rarr;
+                    </a>
+                </div>
             </div>
         </div>
-        <div class="card">
-            <div class="px-4 py-5 sm:p-6">
-                <dt class="text-sm font-medium text-gray-500 truncate">Active Jobs</dt>
-                <dd class="mt-1 text-3xl font-semibold text-indigo-600">{{ active_jobs }}</dd>
+    {% else %}
+        <div class="card p-5 mb-8 bg-blue-50/50 border border-blue-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-start gap-3">
+                <div class="w-9 h-9 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-slate-900">Establish your Company Profile</h3>
+                    <p class="text-xs text-slate-600 mt-0.5">Add your logo, headquarters, website, and description so candidates can learn more about your organization.</p>
+                </div>
             </div>
+            <a href="{% url 'company_update' %}" class="btn-primary btn-sm whitespace-nowrap self-start sm:self-auto">
+                Set up Company
+            </a>
         </div>
-        <div class="card">
-            <div class="px-4 py-5 sm:p-6">
-                <dt class="text-sm font-medium text-gray-500 truncate">Total Applicants</dt>
-                <dd class="mt-1 text-3xl font-semibold text-gray-900">{{ total_applicants }}</dd>
-            </div>
+    {% endif %}
+
+    <!-- Key Recruiter Metrics -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+        <div class="card p-5">
+            <dt class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Jobs Posted</dt>
+            <dd class="mt-2 text-2xl sm:text-3xl font-bold text-slate-900">{{ total_jobs }}</dd>
+        </div>
+        <div class="card p-5">
+            <dt class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Active Listings</dt>
+            <dd class="mt-2 text-2xl sm:text-3xl font-bold text-blue-600">{{ active_jobs }}</dd>
+        </div>
+        <div class="card p-5">
+            <dt class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Applicants</dt>
+            <dd class="mt-2 text-2xl sm:text-3xl font-bold text-slate-900">{{ total_applicants }}</dd>
         </div>
     </div>
 
-    <!-- Jobs List -->
+    <!-- Job Management Section -->
     <div class="card mb-8">
-        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
-            <h3 class="text-lg leading-6 font-medium text-gray-900">Your Posted Jobs</h3>
+        <div class="card-header bg-slate-50/50">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-700">Posted Openings</h2>
+            <div class="flex items-center gap-3">
+                <span class="text-xs text-slate-500">{{ jobs|length }} opening{{ jobs|length|pluralize }}</span>
+                <a href="{% url 'job_create' %}" class="btn-primary btn-sm text-xs py-1">
+                    + New Job
+                </a>
+            </div>
         </div>
+
         {% if jobs %}
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+            <!-- Desktop Table View (>= md screens) -->
+            <div class="hidden md:block overflow-x-auto">
+                <table class="min-w-full divide-y divide-slate-200 text-left">
+                    <thead class="bg-slate-50/70">
                         <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applications</th>
-                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th scope="col" class="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider">Role Title</th>
+                            <th scope="col" class="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider">Location</th>
+                            <th scope="col" class="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider">Type</th>
+                            <th scope="col" class="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider">Status</th>
+                            <th scope="col" class="px-6 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider">Applicants</th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-slate-600 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody class="bg-white divide-y divide-slate-100 text-sm">
                         {% for job in jobs %}
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    <a href="{% url 'job_detail' job.id %}" class="hover:text-indigo-600">{{ job.title }}</a>
+                            <tr class="hover:bg-slate-50/70 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap max-w-xs font-bold text-slate-900 truncate">
+                                    <a href="{% url 'job_detail' job.id %}" class="hover:text-blue-600 transition-colors truncate block" title="{{ job.title }}">
+                                        {{ job.title }}
+                                    </a>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <td class="px-6 py-4 whitespace-nowrap max-w-[160px] text-slate-500 text-xs truncate" title="{{ job.location }}">
                                     {{ job.location }}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="badge">{{ job.job_type }}</span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <td class="px-6 py-4 whitespace-nowrap">
                                     {% if job.is_active %}
-                                        <span class="badge bg-green-100 text-green-800">Active</span>
+                                        <span class="badge-success">Active</span>
                                     {% else %}
-                                        <span class="badge bg-gray-100 text-gray-800">Inactive</span>
+                                        <span class="badge-slate font-semibold text-slate-600">Inactive</span>
                                     {% endif %}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ job.applications.count }}
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <a href="{% url 'job_applicants' job.id %}" class="inline-flex items-center text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-200/60">
+                                        {{ job.applications.count }} candidate{{ job.applications.count|pluralize }}
+                                    </a>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2 flex justify-end">
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-xs font-semibold space-x-2">
                                     <form method="POST" action="{% url 'job_toggle' job.id %}" class="inline">
                                         {% csrf_token %}
-                                        <button type="submit" class="text-indigo-600 hover:text-indigo-900">
+                                        <button type="submit" class="text-slate-600 hover:text-slate-900 transition-colors cursor-pointer" title="Toggle active status">
                                             {% if job.is_active %}Deactivate{% else %}Activate{% endif %}
                                         </button>
                                     </form>
-                                    <a href="{% url 'job_applicants' job.id %}" class="text-green-600 hover:text-green-900">Applicants</a>
-                                    <a href="{% url 'job_update' job.id %}" class="text-blue-600 hover:text-blue-900">Edit</a>
-                                    <a href="{% url 'job_delete' job.id %}" class="text-red-600 hover:text-red-900">Delete</a>
+                                    <a href="{% url 'job_update' job.id %}" class="text-slate-700 hover:text-slate-900 transition-colors">
+                                        Edit
+                                    </a>
+                                    <a href="{% url 'job_delete' job.id %}" class="text-rose-600 hover:text-rose-700 transition-colors">
+                                        Delete
+                                    </a>
                                 </td>
                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
+
+            <!-- Mobile Stacked Card View (< md screens, 100% usable on narrow viewports) -->
+            <div class="block md:hidden divide-y divide-slate-100">
+                {% for job in jobs %}
+                    <div class="p-5 hover:bg-slate-50/70 transition-colors">
+                        <div class="flex items-start justify-between gap-3 mb-2">
+                            <div>
+                                <h3 class="text-base font-bold text-slate-900">
+                                    <a href="{% url 'job_detail' job.id %}" class="hover:text-blue-600">
+                                        {{ job.title }}
+                                    </a>
+                                </h3>
+                                <p class="text-xs text-slate-500 mt-0.5">{{ job.location }} &bull; {{ job.job_type }}</p>
+                            </div>
+                            <div>
+                                {% if job.is_active %}
+                                    <span class="badge-success">Active</span>
+                                {% else %}
+                                    <span class="badge-slate text-slate-600 font-semibold">Inactive</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mt-3 flex items-center justify-between gap-2 pt-3 border-t border-slate-100 flex-wrap">
+                            <a href="{% url 'job_applicants' job.id %}" class="text-xs font-bold text-blue-600 hover:text-blue-700">
+                                {{ job.applications.count }} applicant{{ job.applications.count|pluralize }} &rarr;
+                            </a>
+
+                            <div class="flex items-center gap-3 text-xs font-semibold">
+                                <form method="POST" action="{% url 'job_toggle' job.id %}" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-slate-600 hover:text-slate-900">
+                                        {% if job.is_active %}Deactivate{% else %}Activate{% endif %}
+                                    </button>
+                                </form>
+                                <a href="{% url 'job_update' job.id %}" class="text-slate-700 hover:text-slate-900">Edit</a>
+                                <a href="{% url 'job_delete' job.id %}" class="text-rose-600 hover:text-rose-700">Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
         {% else %}
-            <div class="px-4 py-5 sm:p-6 text-center text-gray-500">
-                You haven't posted any jobs yet.
+            <div class="p-12 text-center text-slate-500">
+                <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                </div>
+                <h3 class="text-sm font-semibold text-slate-800">No jobs posted yet</h3>
+                <p class="text-xs text-slate-500 mt-1 mb-4 max-w-sm mx-auto">Publish your first job opening to start receiving qualified candidates.</p>
+                <a href="{% url 'job_create' %}" class="btn-primary btn-sm">Post a Job</a>
             </div>
         {% endif %}
     </div>
 
-    <!-- Recent Applications -->
+    <!-- Recent Candidate Submissions -->
     <div class="card">
-        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
-            <h3 class="text-lg leading-6 font-medium text-gray-900">Recent Applications</h3>
+        <div class="card-header bg-slate-50/50">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-700">Recent Applications</h2>
+            <span class="text-xs text-slate-500">{{ applications|length }} recent</span>
         </div>
-        <ul class="divide-y divide-gray-200">
+        <ul class="divide-y divide-slate-100">
             {% for app in applications %}
-                <li class="px-4 py-4 sm:px-6 hover:bg-gray-50 transition-colors">
-                    <div class="flex items-center justify-between">
-                        <p class="text-sm font-medium text-indigo-600 truncate">
-                            {{ app.candidate.username }}
-                        </p>
-                        <div class="ml-2 flex-shrink-0 flex">
-                            <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                {{ app.job.title }}
+                <li class="p-5 sm:p-6 hover:bg-slate-50/70 transition-colors">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <p class="text-sm font-bold text-slate-900 truncate">
+                                    {{ app.candidate.get_full_name|default:app.candidate.username }}
+                                </p>
+                                {% if app.candidate.get_full_name %}
+                                    <span class="text-xs text-slate-400">(@{{ app.candidate.username }})</span>
+                                {% endif %}
+                            </div>
+                            <p class="text-xs text-slate-500 mt-0.5">
+                                Applied for <a href="{% url 'job_detail' app.job.id %}" class="font-medium text-slate-800 hover:text-blue-600">{{ app.job.title }}</a> &bull; {{ app.applied_at|date:"M d, Y" }}
                             </p>
                         </div>
-                    </div>
-                    <div class="mt-2 sm:flex sm:justify-between">
-                        <div class="sm:flex">
-                            <p class="flex items-center text-sm text-gray-500">
-                                <span class="badge">{{ app.get_status_display }}</span>
-                            </p>
-                        </div>
-                        <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                            <p>
-                                Applied on <time datetime="{{ app.applied_at|date:'Y-m-d' }}">{{ app.applied_at|date:"F d, Y" }}</time>
-                            </p>
+
+                        <div class="flex items-center gap-3 self-start sm:self-auto flex-shrink-0">
+                            <div>
+                                {% if app.status == 'SHORTLISTED' %}
+                                    <span class="badge-success">Shortlisted</span>
+                                {% elif app.status == 'REJECTED' %}
+                                    <span class="badge-danger">Not Selected</span>
+                                {% else %}
+                                    <span class="badge-blue">Applied</span>
+                                {% endif %}
+                            </div>
+
+                            {% if app.resume %}
+                                <a href="{{ app.resume.url }}" target="_blank" class="btn-outline btn-sm">
+                                    Resume
+                                </a>
+                            {% endif %}
+
+                            <a href="{% url 'job_applicants' app.job.id %}" class="inline-flex items-center text-xs font-semibold text-blue-600 hover:text-blue-700">
+                                Review &rarr;
+                            </a>
                         </div>
                     </div>
                 </li>
             {% empty %}
-                <li class="px-4 py-5 sm:p-6 text-center text-gray-500">
-                    No recent applications.
+                <li class="p-10 text-center text-slate-500 text-xs">
+                    No candidate applications received yet.
                 </li>
             {% endfor %}
         </ul>
