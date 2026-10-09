@@ -73,15 +73,20 @@ The database structure adheres to the project specifications:
    python manage.py migrate
    ```
 
-6. **Seed Realistic Sample Data** (Optional but highly recommended for demo purposes):
+6. **Seed Realistic Sample Data & Demo Credentials**:
    ```bash
    python manage.py seed_data
    ```
-
-7. **Create a Superuser** (For admin access):
+   To assign all demo jobs to your recruiter account for presentations:
    ```bash
-   python manage.py createsuperuser
+   python manage.py assign_demo_jobs Recruiter
    ```
+
+7. **Demo Login Credentials**:
+   | Role | Username / Email | Password | Access / Features |
+   | :--- | :--- | :--- | :--- |
+   | **Recruiter** | `recruiter@gmail.com` *(or `Recruiter`)* | `recruiter@gmail.com` | Manages 5 jobs, company profile, review & shortlist candidates |
+   | **Candidate** | `candidate@gmail.com` *(or `Candidate`)* | `candidate@gmail.com` | Explores jobs, applies with PDF resume, bookmarks saved jobs |
 
 8. **Run the Development Server**:
    ```bash
