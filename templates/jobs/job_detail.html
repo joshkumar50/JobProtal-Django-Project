@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ job.title }} - JobPortal{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="card">
+        <div class="px-4 py-5 sm:px-6 flex justify-between items-start">
+            <div>
+                <h3 class="text-2xl leading-6 font-bold text-gray-900">{{ job.title }}</h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                    {% if job.company_name %}
+                        <span class="font-medium text-gray-900">{{ job.company_name }}</span>
+                    {% elif job.recruiter.company %}
+                        <a href="{% url 'company_detail' job.recruiter.company.id %}" class="font-medium text-indigo-600 hover:underline">{{ job.recruiter.company.name }}</a> 
+                    {% else %}
+                        {{ job.recruiter.username }} 
+                    {% endif %}
+                    &middot; {{ job.location }}
+                </p>
+            </div>
+            <div>
+                <span class="badge">
+                    {{ job.job_type }}
+                </span>
+                <span class="badge">
+                    {{ job.skills }}
+                </span>
+            </div>
+        </div>
+        <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
+            <dl class="sm:divide-y sm:divide-gray-200">
+                <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">Salary Range</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ job.formatted_salary|default:"Not specified" }}</dd>
+                </div>
+                <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">Posted on</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ job.posted_on|date:"F d, Y" }}</dd>
+                </div>
+                <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">Job Description</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 whitespace-pre-line">{{ job.description }}</dd>
+                </div>
+            </dl>
+        </div>
+        
+        <div class="px-4 py-4 sm:px-6 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
+            <a href="{% url 'job_list' %}" class="btn-secondary">
+                Back to Jobs
+            </a>
+            
+            {% if user.is_authenticated %}
+                {% if user.profile.role == 'CANDIDATE' %}
+                    <form method="POST" action="{% url 'toggle_saved_job' job.id %}" class="inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="job_detail">
+                        <button type="submit" class="btn-secondary {% if has_saved %}border-indigo-500 text-indigo-700 bg-indigo-50 hover:bg-indigo-100{% endif %}">
+                            <svg class="w-4 h-4 inline-block mr-1 {% if has_saved %}text-indigo-600{% else %}text-gray-400{% endif %}" fill="{% if has_saved %}currentColor{% else %}none{% endif %}" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                            {% if has_saved %}Saved{% else %}Save Job{% endif %}
+                        </button>
+                    </form>
+                    {% if has_applied %}
+                        <button disabled class="btn-primary opacity-80 cursor-not-allowed">
+                            Applied
+                        </button>
+                    {% else %}
+                        <a href="{% url 'apply_to_job' job.id %}" class="btn-primary">
+                            Apply Now
+                        </a>
+                    {% endif %}
+                {% elif user == job.recruiter %}
+                    <span class="inline-flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-gray-700 bg-gray-200">
+                        This is your job post
+                    </span>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'login' %}?next={{ request.path }}" class="btn-primary">
+                    Log in to Apply
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

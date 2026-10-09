@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ company.name }} - JobPortal{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg border border-gray-100 mb-8">
+        <div class="px-4 py-6 sm:px-6 flex items-center justify-between">
+            <div class="flex items-center space-x-5">
+                {% if company.logo %}
+                    <div class="flex-shrink-0">
+                        <img class="h-16 w-16 rounded-full object-cover border border-gray-200" src="{{ company.logo.url }}" alt="{{ company.name }} logo">
+                    </div>
+                {% else %}
+                    <div class="flex-shrink-0 h-16 w-16 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xl">
+                        {{ company.name|make_list|first|upper }}
+                    </div>
+                {% endif %}
+                <div>
+                    <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">{{ company.name }}</h2>
+                    <div class="mt-1 flex flex-col sm:flex-row sm:flex-wrap sm:space-x-6 text-sm text-gray-500">
+                        {% if company.location %}
+                        <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+                            <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                              <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                            </svg>
+                            {{ company.location }}
+                        </div>
+                        {% endif %}
+                        {% if company.website %}
+                        <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+                            <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clip-rule="evenodd" />
+                            </svg>
+                            <a href="{{ company.website }}" target="_blank" class="hover:text-indigo-600 hover:underline">{{ company.website }}</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% if company.description %}
+        <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">About Us</h3>
+            <p class="text-sm text-gray-700 whitespace-pre-line">{{ company.description }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div>
+        <h3 class="text-xl font-semibold text-gray-900 mb-4">Open Positions at {{ company.name }}</h3>
+        
+        <div class="bg-white shadow overflow-hidden sm:rounded-md border border-gray-100">
+            <ul class="divide-y divide-gray-200">
+                {% for job in company_jobs %}
+                    <li>
+                        <a href="{% url 'job_detail' job.id %}" class="block hover:bg-gray-50 transition-colors">
+                            <div class="px-4 py-4 sm:px-6">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <p class="text-lg font-semibold text-indigo-600 truncate">{{ job.title }}</p>
+                                        <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800">
+                                            {{ job.skills }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="mt-2 sm:flex sm:justify-between">
+                                    <div class="sm:flex text-sm text-gray-500 space-x-4">
+                                        <p class="flex items-center">
+                                            <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                              <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                                            </svg>
+                                            {{ job.location }}
+                                        </p>
+                                        {% if job.formatted_salary %}
+                                        <p class="flex items-center">
+                                            <span class="mr-1.5 h-5 w-5 text-gray-400 text-lg flex items-center justify-center font-bold">₹</span>
+                                            {{ job.formatted_salary }}
+                                        </p>
+                                        {% endif %}
+                                    </div>
+                                    <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+                                        <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                                        </svg>
+                                        <p>Posted <time datetime="{{ job.posted_on|date:'Y-m-d' }}">{{ job.posted_on|timesince }} ago</time></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                {% empty %}
+                    <li class="px-4 py-12 text-center text-gray-500">
+                        No active jobs at the moment.
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

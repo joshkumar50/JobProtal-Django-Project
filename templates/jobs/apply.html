@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Apply for {{ job.title }} - JobPortal{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="card p-6 sm:p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">Apply for {{ job.title }}</h2>
+        <p class="text-gray-500 mb-6">at {% if job.company_name %}{{ job.company_name }}{% else %}{{ job.recruiter.company.name|default:job.recruiter.username }}{% endif %}</p>
+        
+        <form method="POST" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="text-red-600 text-sm mb-4">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div>
+                <label for="id_resume" class="block text-sm font-medium text-gray-700">Resume (PDF only)</label>
+                <div class="mt-1">
+                    {{ form.resume }}
+                </div>
+                {% if form.resume.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.resume.errors.0 }}</p>
+                {% else %}
+                    <p class="mt-2 text-sm text-gray-500">Your profile information will be automatically included with this application.</p>
+                {% endif %}
+            </div>
+
+            <div class="flex justify-end pt-4 border-t border-gray-100 space-x-3">
+                <a href="{% url 'job_detail' job.id %}" class="btn-secondary">Cancel</a>
+                <button type="submit" class="btn-primary">Submit Application</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
